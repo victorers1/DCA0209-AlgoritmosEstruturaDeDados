@@ -13,22 +13,45 @@ struct GrafoMatrizAdj
 };
 
 /**
+ * Para entrada i=1, retorna string "v1".
+ * i = 0 até 999
+ * rotulo = "v0" até "v999"
+ */
+char *getRotulo(int i)
+{
+    char indiceVertice[4];
+    itoa(i, indiceVertice, 10);
+    char *rotulo = malloc(sizeof(char) * 5);
+    rotulo[0] = 'v';
+    rotulo[1] = '\0';
+    strcat(rotulo, indiceVertice);
+    return rotulo;
+}
+
+/**
  * Se o grafo for ponderado, inicializamos cada posicao da matriz com INT_MAX.
  * Se o grafo for não ponderado, inicializamos cada posicao da matriz com 0.
  **/
 struct GrafoMatrizAdj *inicializar(int numVertices, bool ponderado)
 {
-    int peso = ponderado ? INT_MAX : 0;
+    int i, j, peso = ponderado ? INT_MAX : 0;
 
     struct GrafoMatrizAdj *grafo_tmp = malloc(sizeof(struct GrafoMatrizAdj));
     grafo_tmp->verticesInseridos = numVertices;
-    grafo_tmp->arestas = malloc(numVertices * sizeof(int *));
+    grafo_tmp->maxNumVertices = numVertices * 10;
 
-    for (int i = 0; i < numVertices; i++)
+    grafo_tmp->arestas = malloc(numVertices * sizeof(int *));
+    grafo_tmp->rotuloVertices = malloc(numVertices * sizeof(char *));
+
+    for (i = 0; i < numVertices; i++)
     {
+        grafo_tmp->rotuloVertices[i] = getRotulo(i);
+
         int *linha = malloc(sizeof(numVertices) * numVertices);
-        for (int j = 0; j < numVertices; j++)
+        for (j = 0; j < numVertices; j++)
+        {
             linha[j] = peso;
+        }
 
         grafo_tmp->arestas[i] = linha;
     }

@@ -1,5 +1,6 @@
 #include "grafo.h"
 #include <stdio.h>
+#include <string.h>
 
 int main()
 {
@@ -8,11 +9,11 @@ int main()
 
     for (i = 0; i < qtdVertice; i++)
     {
+        printf("Nó %s: \n", grafo->rotuloVertices[i]);
+
         for (j = 0; j < qtdVertice; j++)
         {
-            tmp = *(*(grafo->arestas + i) + j);
-            // printf("acessing *(*(grafo->arestas + %d) + %d) = %d \n", i, j, tmp);
-            printf("%d ", *(*(grafo->arestas + i) + j));
+            printf("peso[%d][%d] = %d\n", i, j, *(*(grafo->arestas + i) + j));
         }
         printf("\n");
     }
