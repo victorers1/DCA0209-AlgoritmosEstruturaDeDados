@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 struct GrafoMatrizAdj
 {

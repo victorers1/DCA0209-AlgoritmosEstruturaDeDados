@@ -1,16 +1,20 @@
 #include "grafo.h"
+#include <stdio.h>
 
 int main()
 {
-    int qtdVertice = 10;
+    int qtdVertice = 3, i, j, tmp;
     struct GrafoMatrizAdj *grafo = inicializar(qtdVertice, false);
 
-    for (int i = 0; i < qtdVertice; i++)
+    for (i = 0; i < qtdVertice; i++)
     {
-        for (int j = 0; j < qtdVertice; j++)
+        for (j = 0; j < qtdVertice; j++)
         {
-            // grafo->arestas //TODO acessar posição de matriz com ponteiros
+            tmp = *(*(grafo->arestas + i) + j);
+            // printf("acessing *(*(grafo->arestas + %d) + %d) = %d \n", i, j, tmp);
+            printf("%d ", *(*(grafo->arestas + i) + j));
         }
+        printf("\n");
     }
     return 0;
 }
