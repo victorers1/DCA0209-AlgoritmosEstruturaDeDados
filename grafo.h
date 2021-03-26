@@ -65,6 +65,11 @@ struct GrafoMatrizAdj *inicializar(int numVertices, bool ponderado)
  **/
 int obterIndiceVertice(struct GrafoMatrizAdj *grafo, char *rotuloVertice)
 {
+    for (int i = 0; i < grafo->maxNumVertices; i++)
+        if (strcmp(rotuloVertice, grafo->rotuloVertices[i]) == 0)
+            return i;
+
+    return -1;
 }
 
 /**
@@ -74,6 +79,22 @@ int obterIndiceVertice(struct GrafoMatrizAdj *grafo, char *rotuloVertice)
  **/
 void inserirAresta(struct GrafoMatrizAdj *grafo, char *rotuloVOrigem, char *rotuloVDestino, int peso)
 {
+    int indiceOrigem = obterIndiceVertice(grafo, rotuloVOrigem);
+    if (indiceOrigem == -1)
+    {
+        printf("Rótulo de origem '&s' não encontrado. Fechando programa.\n", rotuloVOrigem);
+        exit(-1);
+    }
+
+    int indiceDestino = obterIndiceVertice(grafo, rotuloVDestino);
+    if (indiceOrigem == -1)
+    {
+        printf("Rótulo de destino '&s' não encontrado. Fechando programa.\n", rotuloVOrigem);
+        exit(-1);
+    }
+
+    grafo->arestas[indiceOrigem][indiceDestino] = peso;
+    grafo->arestas[indiceDestino][indiceOrigem] = peso;
 }
 
 /**
