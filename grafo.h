@@ -17,6 +17,22 @@ struct GrafoMatrizAdj
  **/
 struct GrafoMatrizAdj *inicializar(int numVertices, bool ponderado)
 {
+    int peso = ponderado ? INT_MAX : 0;
+
+    struct GrafoMatrizAdj *grafo_tmp = malloc(sizeof(struct GrafoMatrizAdj));
+    grafo_tmp->verticesInseridos = numVertices;
+    grafo_tmp->arestas = malloc(numVertices * sizeof(int *));
+
+    for (int i = 0; i < numVertices; i++)
+    {
+        int *linha = malloc(sizeof(numVertices) * numVertices);
+        for (int j = 0; j < numVertices; j++)
+            linha[j] = peso;
+
+        grafo_tmp->arestas[i] = linha;
+    }
+
+    return grafo_tmp;
 }
 
 /**
