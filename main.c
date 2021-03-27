@@ -32,16 +32,14 @@ void graphToMatrix(struct GrafoMatrizAdj *grafo, int qtdVertice)
 
 int main()
 {
-    int qtdVertice = 3, i, j;
+    int qtdVertice = 3;
+    printf("Inicialização:\n");
     struct GrafoMatrizAdj *grafo = inicializar(qtdVertice, false);
 
-    printf("Inicialização:\n");
+    inserirVertice(grafo, "v0");
+    inserirVertice(grafo, "v1");
+    inserirVertice(grafo, "v2");
     graphToString(grafo, qtdVertice);
-
-    printf("\n\nObter Indice Vertice:\n");
-    printf("Índice de v0: %d\n", obterIndiceVertice(grafo, "v0"));
-    printf("Índice de v1: %d\n", obterIndiceVertice(grafo, "v1"));
-    printf("Índice de v2: %d\n", obterIndiceVertice(grafo, "v2"));
 
     printf("\n\nInserir Aresta:\n");
     printf("v0 - v1 : 1\n");
@@ -51,6 +49,11 @@ int main()
     printf("v2 - v0 : 3\n");
     inserirAresta(grafo, "v2", "v0", 3);
     graphToMatrix(grafo, qtdVertice);
+
+    printf("\n\nObter Indice Vertice:\n");
+    printf("Índice de v0: %d\n", obterIndiceVertice(grafo, "v0"));
+    printf("Índice de v1: %d\n", obterIndiceVertice(grafo, "v1"));
+    printf("Índice de v2: %d\n", obterIndiceVertice(grafo, "v2"));
 
     return 0;
 }

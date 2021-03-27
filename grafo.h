@@ -31,7 +31,6 @@ char *getRotulo(int i)
 /**
  * Se o grafo for ponderado, inicializamos cada posicao da matriz com INT_MAX.
  * Se o grafo for não ponderado, inicializamos cada posicao da matriz com 0.
- * !numVertice talvez seja o número máximo de vértices e o grafo deve começar vazio
  **/
 struct GrafoMatrizAdj *inicializar(int maxNumVertices, bool ponderado)
 {
@@ -46,8 +45,6 @@ struct GrafoMatrizAdj *inicializar(int maxNumVertices, bool ponderado)
 
     for (i = 0; i < maxNumVertices; i++)
     {
-        // grafo_tmp->rotuloVertices[i] = getRotulo(i);
-
         int *linha = (int *)malloc(sizeof(int) * maxNumVertices);
         for (j = 0; j < maxNumVertices; j++)
         {
@@ -81,18 +78,7 @@ int obterIndiceVertice(struct GrafoMatrizAdj *grafo, char *rotuloVertice)
 void inserirAresta(struct GrafoMatrizAdj *grafo, char *rotuloVOrigem, char *rotuloVDestino, int peso)
 {
     int indiceOrigem = obterIndiceVertice(grafo, rotuloVOrigem);
-    if (indiceOrigem == -1)
-    {
-        printf("Rótulo de origem '%s' não encontrado. Fechando programa.\n", rotuloVOrigem);
-        exit(-1);
-    }
-
     int indiceDestino = obterIndiceVertice(grafo, rotuloVDestino);
-    if (indiceOrigem == -1)
-    {
-        printf("Rótulo de destino '%s' não encontrado. Fechando programa.\n", rotuloVOrigem);
-        exit(-1);
-    }
 
     grafo->arestas[indiceOrigem][indiceDestino] = peso;
     grafo->arestas[indiceDestino][indiceOrigem] = peso;
@@ -104,7 +90,7 @@ void inserirAresta(struct GrafoMatrizAdj *grafo, char *rotuloVOrigem, char *rotu
  **/
 void inserirVertice(struct GrafoMatrizAdj *grafo, char *rotuloVertice)
 {
-    grafo->rotuloVertices[grafo->verticesInseridos] = getRotulo(grafo->verticesInseridos);
+    grafo->rotuloVertices[grafo->verticesInseridos] = rotuloVertice;
     grafo->verticesInseridos++;
 }
 
@@ -114,5 +100,13 @@ void inserirVertice(struct GrafoMatrizAdj *grafo, char *rotuloVertice)
  **/
 bool saoConectados(struct GrafoMatrizAdj *grafo, char *rotuloVOrigem, char *rotuloVDestino)
 {
-    return true;
+    int indiceOrigem = obterIndiceVertice(grafo, rotuloVOrigem);
+    if (indiceOrigem == -1)
+        return false;
+
+    int indiceDestino = obterIndiceVertice(grafo, rotuloVDestino);
+    if (indiceDestino == -1)
+        return false;
+
+    return grafo->arestas[indiceOrigem][indiceDestino] > 0 || indiceOrigem == indiceDestino;
 }
