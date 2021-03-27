@@ -13,22 +13,6 @@ struct GrafoMatrizAdj
 };
 
 /**
- * Para entrada i=1, retorna string "v1".
- * i = 0 até 999
- * rotulo = "v0" até "v999"
- */
-char *getRotulo(int i)
-{
-    char indiceVertice[4];
-    itoa(i, indiceVertice, 10);
-    char *rotulo = (char *)malloc(sizeof(char) * 5);
-    rotulo[0] = 'v';
-    rotulo[1] = '\0';
-    strcat(rotulo, indiceVertice);
-    return rotulo;
-}
-
-/**
  * Se o grafo for ponderado, inicializamos cada posicao da matriz com INT_MAX.
  * Se o grafo for não ponderado, inicializamos cada posicao da matriz com 0.
  **/
