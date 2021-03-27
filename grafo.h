@@ -21,7 +21,7 @@ char *getRotulo(int i)
 {
     char indiceVertice[4];
     itoa(i, indiceVertice, 10);
-    char *rotulo = malloc(sizeof(char) * 5);
+    char *rotulo = (char *)malloc(sizeof(char) * 5);
     rotulo[0] = 'v';
     rotulo[1] = '\0';
     strcat(rotulo, indiceVertice);
@@ -31,24 +31,25 @@ char *getRotulo(int i)
 /**
  * Se o grafo for ponderado, inicializamos cada posicao da matriz com INT_MAX.
  * Se o grafo for não ponderado, inicializamos cada posicao da matriz com 0.
+ * !numVertice talvez seja o número máximo de vértices e o grafo deve começar vazio
  **/
-struct GrafoMatrizAdj *inicializar(int numVertices, bool ponderado)
+struct GrafoMatrizAdj *inicializar(int maxNumVertices, bool ponderado)
 {
     int i, j, peso = ponderado ? INT_MAX : 0;
 
-    struct GrafoMatrizAdj *grafo_tmp = malloc(sizeof(struct GrafoMatrizAdj));
-    grafo_tmp->verticesInseridos = numVertices;
-    grafo_tmp->maxNumVertices = numVertices * 10;
+    struct GrafoMatrizAdj *grafo_tmp = (struct GrafoMatrizAdj *)malloc(sizeof(struct GrafoMatrizAdj));
+    grafo_tmp->verticesInseridos = 0;
+    grafo_tmp->maxNumVertices = maxNumVertices;
 
-    grafo_tmp->arestas = malloc(numVertices * sizeof(int *));
-    grafo_tmp->rotuloVertices = malloc(numVertices * sizeof(char *));
+    grafo_tmp->arestas = (int **)malloc(maxNumVertices * sizeof(int *));
+    grafo_tmp->rotuloVertices = (char **)malloc(maxNumVertices * sizeof(char *));
 
-    for (i = 0; i < numVertices; i++)
+    for (i = 0; i < maxNumVertices; i++)
     {
-        grafo_tmp->rotuloVertices[i] = getRotulo(i);
+        // grafo_tmp->rotuloVertices[i] = getRotulo(i);
 
-        int *linha = malloc(sizeof(numVertices) * numVertices);
-        for (j = 0; j < numVertices; j++)
+        int *linha = (int *)malloc(sizeof(int) * maxNumVertices);
+        for (j = 0; j < maxNumVertices; j++)
         {
             linha[j] = peso;
         }
@@ -65,7 +66,7 @@ struct GrafoMatrizAdj *inicializar(int numVertices, bool ponderado)
  **/
 int obterIndiceVertice(struct GrafoMatrizAdj *grafo, char *rotuloVertice)
 {
-    for (int i = 0; i < grafo->maxNumVertices; i++)
+    for (int i = 0; i < grafo->verticesInseridos; i++)
         if (strcmp(rotuloVertice, grafo->rotuloVertices[i]) == 0)
             return i;
 
@@ -82,14 +83,14 @@ void inserirAresta(struct GrafoMatrizAdj *grafo, char *rotuloVOrigem, char *rotu
     int indiceOrigem = obterIndiceVertice(grafo, rotuloVOrigem);
     if (indiceOrigem == -1)
     {
-        printf("Rótulo de origem '&s' não encontrado. Fechando programa.\n", rotuloVOrigem);
+        printf("Rótulo de origem '%s' não encontrado. Fechando programa.\n", rotuloVOrigem);
         exit(-1);
     }
 
     int indiceDestino = obterIndiceVertice(grafo, rotuloVDestino);
     if (indiceOrigem == -1)
     {
-        printf("Rótulo de destino '&s' não encontrado. Fechando programa.\n", rotuloVOrigem);
+        printf("Rótulo de destino '%s' não encontrado. Fechando programa.\n", rotuloVOrigem);
         exit(-1);
     }
 
@@ -103,6 +104,8 @@ void inserirAresta(struct GrafoMatrizAdj *grafo, char *rotuloVOrigem, char *rotu
  **/
 void inserirVertice(struct GrafoMatrizAdj *grafo, char *rotuloVertice)
 {
+    grafo->rotuloVertices[grafo->verticesInseridos] = getRotulo(grafo->verticesInseridos);
+    grafo->verticesInseridos++;
 }
 
 /**
@@ -111,4 +114,5 @@ void inserirVertice(struct GrafoMatrizAdj *grafo, char *rotuloVertice)
  **/
 bool saoConectados(struct GrafoMatrizAdj *grafo, char *rotuloVOrigem, char *rotuloVDestino)
 {
+    return true;
 }
