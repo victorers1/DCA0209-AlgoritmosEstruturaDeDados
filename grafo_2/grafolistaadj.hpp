@@ -18,7 +18,7 @@ private:
     **/
     int obterIndiceVertice(string rotuloVertice)
     {
-        int size = this->vertices.size();
+        auto size = this->vertices.size();
 
         for (int i = 0; i < size; i++)
             if (this->vertices[i] == rotuloVertice)
@@ -28,13 +28,21 @@ private:
     }
 
     /**
-    * O argumento indicesVerticesVisitados serve para controlar quais
+    * O argumento verticesVisitados serve para controlar quais
     * vertices já foram visitados.
     * Lembrando que DFS é uma função recursiva.
     **/
-    void dfs(string rotuloVOrigem, bool *indicesVerticesVisitados)
+    void dfs(string rotuloVOrigem, bool *verticesVisitados)
     {
-        //IMPLEMENTAR
+        int indexOrigem = this->obterIndiceVertice(rotuloVOrigem);
+        if (indexOrigem != -1 && !verticesVisitados[indexOrigem])
+        {
+            verticesVisitados[indexOrigem] = true;
+
+            vector<pair<int, int>> arestasVizinhas = this->arestas[indexOrigem];
+            for (auto a : arestasVizinhas)
+                dfs(this->vertices[a.first], verticesVisitados);
+        }
     }
 
 public:
@@ -118,7 +126,17 @@ public:
     **/
     bool haCaminho(string rotuloVOrigem, string rotuloVDestino)
     {
-        //IMPLEMENTAR
+        int indexDestino = this->obterIndiceVertice(rotuloVDestino);
+        if (indexDestino == -1)
+            return false;
+
+        bool *verticesVisitados = (bool *)malloc(this->vertices.size() * sizeof(bool));
+        dfs(rotuloVOrigem, verticesVisitados);
+
+        bool visitado = (verticesVisitados[indexDestino] == NULL) ? false: true;
+
+        free(verticesVisitados);
+        return visitado;
     }
 
     /**
@@ -131,7 +149,7 @@ public:
     **/
     int colorir()
     {
-        //IMPLEMENTAR
+        return 0; //IMPLEMENTAR
     }
 
     /**
@@ -146,7 +164,7 @@ public:
     **/
     int *bfs(string rotuloVOrigem)
     {
-        //IMPLEMENTAR
+        return 0; //IMPLEMENTAR
     }
 
     vector<string> getVertices()
