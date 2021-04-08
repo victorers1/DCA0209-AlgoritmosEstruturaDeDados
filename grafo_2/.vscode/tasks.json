@@ -2,8 +2,8 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: gcc.exe arquivo de build ativo",
-            "command": "C:\\MinGW\\bin\\gcc.exe",
+            "label": "C/C++: g++.exe arquivo de build ativo",
+            "command": "C:\\MinGW\\bin\\g++.exe",
             "args": [
                 "-g",
                 "${file}",

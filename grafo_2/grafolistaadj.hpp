@@ -1,15 +1,16 @@
-
 #include <iostream>
 #include <vector>
 #include <queue>
 using namespace std;
 
+using vecpair = vector<pair<int, int>>;
+
 class GrafoListaAdj
 {
 private:
-    vector<string> vertices;
-    //first é o indice do vertice, second é o peso (caso o grafo seja ponderado)
+    //first é o indice do vertice vizinho, second é o peso (caso o grafo seja ponderado)
     vector<vector<pair<int, int>>> arestas;
+    vector<string> vertices;
 
     /**
     * A principio nao temos nenhuma ordenacao usando os rotulos.
@@ -17,7 +18,13 @@ private:
     **/
     int obterIndiceVertice(string rotuloVertice)
     {
-        //IMPLEMENTAR
+        int size = this->vertices.size();
+
+        for (int i = 0; i < size; i++)
+            if (this->vertices[i] == rotuloVertice)
+                return i;
+
+        return -1;
     }
 
     /**
@@ -40,14 +47,20 @@ public:
     **/
     void inserirVertice(string rotuloVertice)
     {
-        //IMPLEMENTAR
+        for (string v : this->vertices)
+            if (v == rotuloVertice)
+                return;
+
+        this->vertices.push_back(rotuloVertice);
+        this->arestas.push_back(vector<pair<int, int>>{});
     }
 
     /**
     * Sempre que o grafo for não ponderado, adicionaremos o peso 1,
     * por conveniência.
     **/
-    void inserirArestaDirecionada(string rotuloVOrigem, string rotuloVDestino)
+    void
+    inserirArestaDirecionada(string rotuloVOrigem, string rotuloVDestino)
     {
         inserirArestaDirecionada(rotuloVOrigem, rotuloVDestino, 1);
     }
@@ -70,7 +83,13 @@ public:
     **/
     void inserirArestaDirecionada(string rotuloVOrigem, string rotuloVDestino, int peso)
     {
-        //IMPLEMENTAR
+        int indexOrigem = this->obterIndiceVertice(rotuloVOrigem);
+        int indexDestino = this->obterIndiceVertice(rotuloVDestino);
+
+        if (indexOrigem == -1 || indexDestino == -1)
+            return;
+
+        this->arestas[indexOrigem].push_back(pair<int, int>(indexDestino, peso));
     }
 
     /**
@@ -79,7 +98,17 @@ public:
     **/
     bool saoConectados(string rotuloVOrigem, string rotuloVDestino)
     {
-        //IMPLEMENTAR
+        int indexOrigem = this->obterIndiceVertice(rotuloVOrigem);
+        int indexDestino = this->obterIndiceVertice(rotuloVDestino);
+
+        if (indexOrigem == -1 || indexDestino == -1)
+            return false;
+
+        for (pair<int, int> a : this->arestas[indexOrigem])
+            if (a.first == indexDestino)
+                return true;
+
+        return false;
     }
 
     /**
