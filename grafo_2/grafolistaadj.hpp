@@ -18,7 +18,7 @@ private:
     **/
     int obterIndiceVertice(string rotuloVertice)
     {
-        auto size = this->vertices.size();
+        int size = (int)this->vertices.size();
 
         for (int i = 0; i < size; i++)
             if (this->vertices[i] == rotuloVertice)
@@ -126,17 +126,43 @@ public:
     **/
     bool haCaminho(string rotuloVOrigem, string rotuloVDestino)
     {
-        int indexDestino = this->obterIndiceVertice(rotuloVDestino);
-        if (indexDestino == -1)
+        // Se haCaminho é chamado no mesmo vértice, procura se há um laço
+        if (rotuloVOrigem == rotuloVDestino)
+        {
+            int indexOrigem = this->obterIndiceVertice(rotuloVOrigem);
+            if (indexOrigem == -1)
+                return false;
+
+            int indexDestino = this->obterIndiceVertice(rotuloVDestino);
+            if (indexDestino == -1)
+                return false;
+
+            for (pair<int, int> v : this->arestas[indexOrigem])
+                if (v.first == indexDestino)
+                    return true;
+
             return false;
+        }
+        else // Se haCaminho for chamado em vértices diferentes, aplicar DFS
+        {
+            int indexDestino = this->obterIndiceVertice(rotuloVDestino);
+            if (indexDestino == -1)
+                return false;
 
-        bool *verticesVisitados = (bool *)malloc(this->vertices.size() * sizeof(bool));
-        dfs(rotuloVOrigem, verticesVisitados);
+            // Declara e preenche lista de vértices visitados
+            bool *verticesVisitados = (bool *)malloc(this->vertices.size() * sizeof(bool));
+            for (int i = 0; i < this->vertices.size(); i++)
+                verticesVisitados[i] = false;
 
-        bool visitado = (verticesVisitados[indexDestino] == NULL) ? false: true;
+            // aplica DFS começando em rotuloVOrigem
+            dfs(rotuloVOrigem, verticesVisitados);
 
-        free(verticesVisitados);
-        return visitado;
+            // Salva se vértice foi visitado para liberar memória de *verticesVisitados
+            bool visitado = verticesVisitados[indexDestino];
+
+            free(verticesVisitados);
+            return visitado;
+        }
     }
 
     /**
@@ -149,7 +175,38 @@ public:
     **/
     int colorir()
     {
-        return 0; //IMPLEMENTAR
+        int qtdComponente = 0; // quantidade de grupos isolados de vértices
+        int qtdVertice = this->vertices.size();
+        bool *verticesVisitados = (bool *)malloc(qtdVertice * sizeof(bool)); // vértices visitados pela última execução da DFS
+        bool *verticesColoridos = (bool *)malloc(qtdVertice * sizeof(bool)); // vértices já coloridos em todo grafo
+
+        // Vértices começam sem pintura
+        for (int i = 0; i < qtdVertice; i++)
+            verticesColoridos[i] = false;
+
+        for (int i = 0; i < qtdVertice; i++)
+        {
+            // Por causa desse IF, o FOR acima só executará a DFS uma vez em cada grupo isolado
+            if (verticesColoridos[i])
+                continue;
+
+            // Reseta array de vizinhos visitados para aplicar a próxima execução da DFS
+            for (int i = 0; i < qtdVertice; i++)
+                verticesVisitados[i] = false;
+
+            dfs(this->vertices[i], verticesVisitados);
+
+            // Pinta vértices que foram visitados pela execução atual com o rótulo da origem da busca
+            for (int j = 0; j < qtdVertice; j++)
+                if (verticesVisitados[j])
+                {
+                    this->vertices[j] = this->vertices[i];
+                    verticesColoridos[j] = true;
+                }
+
+            qtdComponente++;
+        }
+        return qtdComponente;
     }
 
     /**
@@ -158,13 +215,52 @@ public:
     * A função BFS consegue listar a menor distância entre um vértice
     * e os demais se o grafo for NÃO-PONDERADO.
     * Retorna um vetor de inteiros com a quantidade de arestas 
-    * (distância) e o vértice rotuloVOrigem e cada um dos demais vértices.
+    * (distância) entre o vértice rotuloVOrigem e cada um dos demais vértices.
     * Não é uma função recursiva. 
     * É necessário utilizar a ED fila.
     **/
     int *bfs(string rotuloVOrigem)
     {
-        return 0; //IMPLEMENTAR
+        int indexOrigem = obterIndiceVertice(rotuloVOrigem);
+        if (indexOrigem == -1)
+            return NULL;
+
+        int qtdVertice = this->vertices.size();
+
+        queue<int> verticesAVisitar;
+        verticesAVisitar.push(indexOrigem);
+
+        int *distancias = (int *)malloc(sizeof(int) * qtdVertice);
+        for (int i = 0; i < qtdVertice; i++)
+            distancias[i] = 0;
+
+        bool *verticesVisitados = (bool *)malloc(sizeof(bool) * qtdVertice);
+        for (int i = 0; i < qtdVertice; i++)
+        {
+            verticesVisitados[i] = false;
+        }
+        verticesVisitados[indexOrigem] = true;
+
+        while (!verticesAVisitar.empty())
+        {
+            int indexFrenteFila = verticesAVisitar.front();
+            verticesAVisitar.pop();
+
+            // for (int indexAresta = 0; indexAresta < this->arestas[indexFrenteFila].size(); indexAresta++)
+            for (pair<int, int> v : this->arestas[indexFrenteFila])
+            {
+                if (!verticesVisitados[v.first])
+                {
+                    verticesVisitados[v.first] = true;
+
+                    distancias[v.first] = distancias[indexFrenteFila] + 1;
+
+                    verticesAVisitar.push(v.first);
+                }
+            }
+        }
+
+        return distancias;
     }
 
     vector<string> getVertices()
