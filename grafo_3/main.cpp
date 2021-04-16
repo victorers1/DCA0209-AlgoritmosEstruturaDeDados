@@ -146,7 +146,7 @@ int main()
         //componente com ciclos negativos
         //{v1,v2,v3,v4,v5,v6,v7,v8,v9}
         for (int i = 0; i < 9; i++)
-            cout << "distancias[" << i << "]== " << distancias[i];
+            cout << "distancias[" << i << "]== " << distancias[i] << endl;
         /* EXPLICAÇÃO PARA RESULTADO ACIMA */
         //infelizmente, o BellmanFord não retorna POS_INF
         //pois se o algoritmo encontrar um ciclo negativo
@@ -215,48 +215,76 @@ int main()
     }
 
     {
-        // cout << "DijkstraGrafoSemCicloNegativo\n";
-        // grafo = new GrafoListaAdj();
-        // inserirVertices(grafo, 1, 9);
-        // construirGrafoPonderado(grafo);
+        cout << "DijkstraGrafoSemCicloNegativo\n";
+        grafo = new GrafoListaAdj();
+        inserirVertices(grafo, 1, 9);
+        construirGrafoPonderado(grafo);
 
-        // int *distancias = grafo->dijkstra("v1");
-        // cout << "distancias[0]== " << distancias[0] << endl;
-        // cout << "distancias[1]== " << distancias[1] << endl;
-        // cout << "distancias[2]== " << distancias[2] << endl;
-        // cout << "distancias[3]== " << distancias[3] << endl;
-        // cout << "distancias[4]== " << distancias[4] << endl;
-        // cout << "distancias[5]== " << distancias[5] << endl;
-        // cout << "distancias[6]== " << distancias[6] << endl;
-        // cout << "distancias[7]== " << distancias[7] << endl;
-        // cout << "distancias[8]== " << distancias[8] << endl;
-        // free(distancias);
+        cout << "Partindo de v1\n";
+        int *distancias = grafo->dijkstra("v1");
+        cout << "distancias[0]== " << distancias[0] << endl;
+        cout << "distancias[1]== " << distancias[1] << endl;
+        cout << "distancias[2]== " << distancias[2] << endl;
+        cout << "distancias[3]== " << distancias[3] << endl;
+        cout << "distancias[4]== " << distancias[4] << endl;
+        cout << "distancias[5]== " << distancias[5] << endl;
+        cout << "distancias[6]== " << distancias[6] << endl;
+        cout << "distancias[7]== " << distancias[7] << endl;
+        cout << "distancias[8]== " << distancias[8] << endl;
+        free(distancias);
 
-        // distancias = grafo->dijkstra("v7");
-        // cout << "distancias[0]== " << distancias[0] << endl;
-        // cout << "distancias[1]== " << distancias[1] << endl;
-        // cout << "distancias[2]== " << distancias[2] << endl;
-        // cout << "distancias[3]== " << distancias[3] << endl;
-        // cout << "distancias[4]== " << distancias[4] << endl;
-        // cout << "distancias[5]== " << distancias[5] << endl;
-        // cout << "distancias[6]== " << distancias[6] << endl;
-        // cout << "distancias[7]== " << distancias[7] << endl;
-        // cout << "distancias[8]== " << distancias[8] << endl;
-        // free(distancias);
+        cout << "Partindo de v7\n";
+        distancias = grafo->dijkstra("v7");
+        cout << "distancias[0]== " << distancias[0] << endl;
+        cout << "distancias[1]== " << distancias[1] << endl;
+        cout << "distancias[2]== " << distancias[2] << endl;
+        cout << "distancias[3]== " << distancias[3] << endl;
+        cout << "distancias[4]== " << distancias[4] << endl;
+        cout << "distancias[5]== " << distancias[5] << endl;
+        cout << "distancias[6]== " << distancias[6] << endl;
+        cout << "distancias[7]== " << distancias[7] << endl;
+        cout << "distancias[8]== " << distancias[8] << endl;
+        free(distancias);
 
-        // distancias = grafo->dijkstra("v9");
-        // cout << "distancias[0]== " << distancias[0] << endl;
-        // cout << "distancias[1]== " << distancias[1] << endl;
-        // cout << "distancias[2]== " << distancias[2] << endl;
-        // cout << "distancias[3]== " << distancias[3] << endl;
-        // cout << "distancias[4]== " << distancias[4] << endl;
-        // cout << "distancias[5]== " << distancias[5] << endl;
-        // cout << "distancias[6]== " << distancias[6] << endl;
-        // cout << "distancias[7]== " << distancias[7] << endl;
-        // cout << "distancias[8]== " << distancias[8] << endl;
-        // free(distancias);
-        // delete (grafo);
+        cout << "Partindo de v9\n";
+        distancias = grafo->dijkstra("v9");
+        cout << "distancias[0]== " << distancias[0] << endl;
+        cout << "distancias[1]== " << distancias[1] << endl;
+        cout << "distancias[2]== " << distancias[2] << endl;
+        cout << "distancias[3]== " << distancias[3] << endl;
+        cout << "distancias[4]== " << distancias[4] << endl;
+        cout << "distancias[5]== " << distancias[5] << endl;
+        cout << "distancias[6]== " << distancias[6] << endl;
+        cout << "distancias[7]== " << distancias[7] << endl;
+        cout << "distancias[8]== " << distancias[8] << endl;
+        free(distancias);
+        delete (grafo);
     }
 
     return 0;
 }
+
+// priority_queue<pair<int, int>> q;
+// for (int i = 1; i <= n; i++)
+// {
+//     distance[i] = INF;
+// }
+// distance[x] = 0;
+// q.push({0, x});
+// while (!q.empty())
+// {
+//     int a = q.top().second;
+//     q.pop();
+//     if (processed[a])
+//         continue;
+//     processed[a] = true;
+//     for (auto u : adj[a])
+//     {
+//         int b = u.first, w = u.second;
+//         if (distance[a] + w < distance[b])
+//         {
+//             distance[b] = distance[a] + w;
+//             q.push({-distance[b], b});
+//         }
+//     }
+// }

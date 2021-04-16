@@ -55,7 +55,7 @@ public:
     int *bellmanFord(string rotuloVOrigem)
     {
         int qtdVertice = this->vertices.size();
-        int *distancias = (int *)malloc(sizeof(int) * qtdVertice);
+        int *distancias = new int[qtdVertice];
         for (int i = 0; i < qtdVertice; i++)
             distancias[i] = POS_INF;
 
@@ -79,6 +79,7 @@ public:
                 }
         }
 
+        // Última varredura em busca de ciclos negativos
         for (int v = 0; v < qtdVertice; v++)
             for (pair<int, int> aresta : this->arestas[v])
             {
@@ -89,30 +90,51 @@ public:
                     distancias[v] = NEG_INF;
             }
 
-        /*
-            for (pair<int, int> aresta : this->arestas[v])
-                if (somaSemOverflow(distancias[v], aresta.second) < distancias[aresta.first])
-                    distancias[v] = NEG_INF;
-            */
-
         return distancias;
     }
 
     int *dijkstra(string rotuloVOrigem)
     {
-    }
+        priority_queue<pair<int, int>> prioridade; // pair<distância atual, índice do próx. vértice>
+        int qtdVertice = this->vertices.size();
 
-    // +inf somado com qualquer valor positivo resulta em +inf
-    // -inf subtraído de qualquer valor negativo resulta em -inf
-    // demais operações são realizadas normalmente
-    int somaSemOverflow(int a, int b)
-    {
-        return a + b;
+        int *distancias = new int[qtdVertice];
+        for (int i = 0; i < qtdVertice; i++)
+            distancias[i] = POS_INF;
 
-        if (a > POS_INF - b)
-            return POS_INF;
-        else
-            return a + b;
+        bool *visitados = new bool[qtdVertice];
+        for (int i = 0; i < qtdVertice; i++)
+            visitados[i] = false;
+
+        int indexOrigem = obterIndiceVertice(rotuloVOrigem);
+        if (indexOrigem == -1)
+            return distancias;
+
+        distancias[indexOrigem] = 0;
+        prioridade.push({0, indexOrigem});
+
+        while (!prioridade.empty())
+        {
+            int verticeAtual = prioridade.top().second;
+            prioridade.pop();
+            if (visitados[verticeAtual])
+                continue;
+
+            visitados[verticeAtual] = true;
+
+            for (pair<int, int> a : this->arestas[verticeAtual])
+            {
+                int indexDestino = a.first, peso = a.second;
+
+                if (distancias[verticeAtual] + peso < distancias[indexDestino])
+                {
+                    distancias[indexDestino] = distancias[verticeAtual] + peso;
+                    prioridade.push({-distancias[indexDestino], indexDestino});
+                }
+            }
+        }
+
+        return distancias;
     }
 
     /**
