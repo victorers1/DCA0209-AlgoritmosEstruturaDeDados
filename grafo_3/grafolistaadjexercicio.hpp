@@ -74,8 +74,7 @@ public:
                     int distOrigem = distancias[v];
                     int distDestino = distancias[aresta.first];
                     int peso = aresta.second;
-                    if (distOrigem != POS_INF)
-                        distancias[aresta.first] = min(distOrigem + peso, distDestino);
+                    distancias[aresta.first] = min(distOrigem + peso, distDestino);
                 }
         }
 
@@ -86,7 +85,7 @@ public:
                 int distOrigem = distancias[v];
                 int distDestino = distancias[aresta.first];
                 int peso = aresta.second;
-                if (distOrigem != POS_INF && distOrigem + peso < distDestino)
+                if (distOrigem + peso < distDestino)
                     distancias[v] = NEG_INF;
             }
 
