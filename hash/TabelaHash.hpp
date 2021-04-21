@@ -1,5 +1,7 @@
-#include <vector>
 #include <iostream>
+#include <vector>
+#include <cmath>
+
 using namespace std;
 
 template <typename K, typename V>
@@ -51,6 +53,12 @@ private:
   //qtdade de elementos já inseridos na tabela hash
   int tamanho;
 
+  int obterIndexBucket(Chave c)
+  {
+    size_t chave = abs(hash<Chave>{}(c));
+    return chave % this->qtde_buckets;
+  }
+
   /**
 		* Função para inserir a tupla <c,v> na tabela.
 		* É preciso calcular o código hash a partir da chave c.
@@ -61,9 +69,18 @@ private:
 		**/
   void inserir(Chave c, Valor v, Tupla<Chave, Valor> **tabela)
   {
-    size_t hash = hash<Chave>{}(c);
+    // Tupla<Chave, Valor> *nova_tupla = (Tupla<Chave, Valor> *)malloc(sizeof(Tupla<Chave, Valor>));
+    Tupla<Chave, Valor> *nova_tupla = new Tupla<Chave, Valor>(c, v);
+    // *nova_tupla = Tupla<Chave, Valor>(c, v);
 
-    //IMPLEMENTAR
+    // Tupla<Chave, Valor> nova_tupla(c, v);
+    int indexBucket = obterIndexBucket(c);
+
+    Tupla<Chave, Valor> *tupla_inicial_bucket = this->tabela[indexBucket];
+
+    // Adiciona nova tupla no ínicio da lista
+    nova_tupla->setProx(tupla_inicial_bucket);
+    this->tabela[indexBucket] = nova_tupla;
   }
 
   /**
@@ -77,7 +94,27 @@ private:
 		**/
   void aumentaArray()
   {
-    //IMPLEMENTAR
+    int nova_qtde_buckets = this->qtde_buckets * 8;
+
+    Tupla<Chave, Valor> **nova_tabela = new Tupla<Chave, Valor> *[nova_qtde_buckets]; //(Tupla<Chave, Valor> **)malloc(sizeof(Tupla<Chave, Valor> *) * this->qtde_buckets)
+
+    for (int i = 0; i < this->qtde_buckets; i++)
+    {
+      if (this->tabela[i] == NULL)
+        continue;
+
+      Tupla<Chave, Valor> primeiro_elem_bucket = *(this->tabela[i]);
+      inserir(primeiro_elem_bucket.getChave(),
+              primeiro_elem_bucket.getValor(),
+              nova_tabela);
+    }
+
+    vector<Chave> chaves = getChaves();
+    for (Chave c : chaves)
+      remover(c);
+
+    this->tabela = nova_tabela;
+    this->qtde_buckets = nova_qtde_buckets;
   }
 
 public:
@@ -89,13 +126,13 @@ public:
   TabelaHash()
   {
     this->tamanho = 0;
-    this->tabela = malloc(sizeof(Tupla<Chave, Valor>) * this->qtde_buckets);
+    this->qtde_buckets = 8;
+    this->tabela = new Tupla<Chave, Valor> *[this->qtde_buckets]; // (Tupla<Chave, Valor> **)malloc(sizeof(Tupla<Chave, Valor> *) * this->qtde_buckets);
 
     for (int i = 0; i < this->qtde_buckets; i++)
     {
       this->tabela[i] = NULL;
     }
-    //IMPLEMENTAR
   }
 
   /**
@@ -109,7 +146,14 @@ public:
 		**/
   void inserir(Chave c, Valor v)
   {
-    //IMPLEMENTAR
+    this->tamanho++;
+
+    if (load_factor() >= 1)
+    {
+      aumentaArray();
+    }
+
+    inserir(c, v, this->tabela);
   }
 
   /**
@@ -117,7 +161,7 @@ public:
 		**/
   double load_factor()
   {
-    //IMPLEMENTAR
+    return this->tamanho / (double)this->qtde_buckets;
   }
 
   /**
@@ -130,7 +174,20 @@ public:
 		**/
   Valor getValor(Chave chave)
   {
-    //IMPLEMENTAR
+    int indexBucket = obterIndexBucket(chave); // O(1)
+    Tupla<Chave, Valor> *bucket = this->tabela[indexBucket];
+
+    Tupla<Chave, Valor> elem_no_bucket = *bucket;
+
+    while (elem_no_bucket.getChave() != chave)
+    {
+      if (elem_no_bucket.getProx() == NULL)
+        return NULL;
+      else
+        elem_no_bucket = *(elem_no_bucket.getProx());
+    }
+
+    return elem_no_bucket.getValor();
   }
 
   /**
@@ -142,7 +199,20 @@ public:
 		**/
   bool contemChave(Chave chave)
   {
-    //IMPLEMENTAR
+    int indexBucket = obterIndexBucket(chave);
+    if (this->tabela[indexBucket] == NULL)
+      return false;
+    Tupla<Chave, Valor> elem_no_bucket = *(this->tabela[indexBucket]);
+
+    while (elem_no_bucket.getChave() != chave)
+    {
+      if (elem_no_bucket.getProx() == NULL)
+        return false;
+      else
+        elem_no_bucket = *(elem_no_bucket.getProx());
+    }
+
+    return true;
   }
 
   /**
@@ -151,7 +221,26 @@ public:
 		**/
   vector<Chave> getChaves()
   {
-    //IMPLEMENTAR
+    vector<Chave> chaves;
+
+    // for (Tupla<Chave, Valor> *bucket : this->tabela)
+    for (int i = 0; i < this->qtde_buckets; i++)
+    {
+      if (this->tabela[i] == NULL)
+        continue;
+
+      Tupla<Chave, Valor> tupla = *(this->tabela[i]);
+      do
+      {
+        chaves.push_back(tupla.getChave());
+
+        if (tupla.getProx() != NULL)
+          tupla = *(tupla.getProx());
+
+      } while (tupla.getProx() != NULL);
+    }
+
+    return chaves;
   }
 
   /**
@@ -160,7 +249,28 @@ public:
 		**/
   void clear()
   {
-    //IMPLEMENTAR
+    vector<Chave> chaves = getChaves();
+
+    for (Chave c : chaves)
+      remover(c);
+
+    this->qtde_buckets = 8;
+    this->tamanho = 0;
+
+    Tupla<Chave, Valor> **nova_tabela = new Tupla<Chave, Valor> *[this->qtde_buckets];
+    delete this->tabela;
+    this->tabela = nova_tabela;
+
+    // Percorre cada Tupla de cada bucket sequencialmente
+    // for (int i = 0; i < this->qtde_buckets; i++)
+    // {
+    //   Tupla<Chave,Valor> *bucket = this->tabela[i];
+
+    //   while ()
+    //   {
+    //     /* code */
+    //   }
+    // }
   }
 
   /**
@@ -176,7 +286,37 @@ public:
 		**/
   void remover(Chave chave)
   {
-    //IMPLEMENTAR
+    int indexBucket = obterIndexBucket(chave);
+    Tupla<Chave, Valor> tupla = *(this->tabela[indexBucket]);
+
+    // Para remover, basta fazer o próximo do anterior ser igual ao próximo do atual
+    Tupla<Chave, Valor> *proximo;
+    Tupla<Chave, Valor> *excluido;
+
+    // Checa se a chave já está no primeiro
+    if (tupla.getChave() == chave)
+    {
+      excluido = &tupla;
+      proximo = tupla.getProx();
+
+      this->tabela[indexBucket] = proximo;
+      delete excluido;
+    }
+
+    // Checa se a chave está nos elementos seguintes
+    while (tupla.getProx() != NULL)
+    {
+      if (tupla.getProx()->getChave() == chave)
+      {
+        excluido = &tupla;
+        proximo = tupla.getProx()->getProx();
+
+        tupla.setProx(proximo);
+        delete excluido;
+      }
+
+      tupla = *(tupla.getProx());
+    }
   }
 
   /**
