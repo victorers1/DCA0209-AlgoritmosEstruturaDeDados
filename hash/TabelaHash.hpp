@@ -53,10 +53,10 @@ private:
   //qtdade de elementos já inseridos na tabela hash
   int tamanho;
 
-  int obterIndexBucket(Chave c)
+  int obterIndexBucket(Chave c, int total_buckets)
   {
-    size_t chave = abs(hash<Chave>{}(c));
-    return chave % this->qtde_buckets;
+    size_t chave = hash<Chave>{}(c); // usar abs()?
+    return chave % total_buckets;
   }
 
   /**
@@ -69,16 +69,13 @@ private:
 		**/
   void inserir(Chave c, Valor v, Tupla<Chave, Valor> **tabela)
   {
-    // Tupla<Chave, Valor> *nova_tupla = (Tupla<Chave, Valor> *)malloc(sizeof(Tupla<Chave, Valor>));
     Tupla<Chave, Valor> *nova_tupla = new Tupla<Chave, Valor>(c, v);
-    // *nova_tupla = Tupla<Chave, Valor>(c, v);
 
-    // Tupla<Chave, Valor> nova_tupla(c, v);
-    int indexBucket = obterIndexBucket(c);
+    int indexBucket = obterIndexBucket(c, this->qtde_buckets);
 
     Tupla<Chave, Valor> *tupla_inicial_bucket = this->tabela[indexBucket];
 
-    // Adiciona nova tupla no ínicio da lista
+    // Adiciona nova tupla no ínicio da lista encadeada
     nova_tupla->setProx(tupla_inicial_bucket);
     this->tabela[indexBucket] = nova_tupla;
   }
@@ -94,25 +91,26 @@ private:
 		**/
   void aumentaArray()
   {
+    int i;
     int nova_qtde_buckets = this->qtde_buckets * 8;
 
-    Tupla<Chave, Valor> **nova_tabela = new Tupla<Chave, Valor> *[nova_qtde_buckets]; //(Tupla<Chave, Valor> **)malloc(sizeof(Tupla<Chave, Valor> *) * this->qtde_buckets)
+    Tupla<Chave, Valor> **nova_tabela = new Tupla<Chave, Valor> *[nova_qtde_buckets];
+    for (i = 0; i < nova_qtde_buckets; i++)
+      nova_tabela[i] = NULL;
 
-    for (int i = 0; i < this->qtde_buckets; i++)
+    // Faz a transferência dos primeiros elementos de cada bucket
+    // da tabela antiga para a nova
+    for (i = 0; i < this->qtde_buckets; i++)
     {
       if (this->tabela[i] == NULL)
         continue;
 
-      Tupla<Chave, Valor> primeiro_elem_bucket = *(this->tabela[i]);
-      inserir(primeiro_elem_bucket.getChave(),
-              primeiro_elem_bucket.getValor(),
-              nova_tabela);
+      Tupla<Chave, Valor> *primeiro_elem_bucket = this->tabela[i];
+      int index_nova_tabela = obterIndexBucket(primeiro_elem_bucket->getChave(), nova_qtde_buckets);
+      nova_tabela[index_nova_tabela] = primeiro_elem_bucket;
     }
 
-    vector<Chave> chaves = getChaves();
-    for (Chave c : chaves)
-      remover(c);
-
+    delete this->tabela;
     this->tabela = nova_tabela;
     this->qtde_buckets = nova_qtde_buckets;
   }
@@ -125,14 +123,18 @@ public:
 		**/
   TabelaHash()
   {
+    reset_tabela(); // reset_tabela() também é chamado em clear();
+  }
+
+  void reset_tabela()
+  {
     this->tamanho = 0;
     this->qtde_buckets = 8;
-    this->tabela = new Tupla<Chave, Valor> *[this->qtde_buckets]; // (Tupla<Chave, Valor> **)malloc(sizeof(Tupla<Chave, Valor> *) * this->qtde_buckets);
 
+    delete this->tabela;
+    this->tabela = new Tupla<Chave, Valor> *[this->qtde_buckets];
     for (int i = 0; i < this->qtde_buckets; i++)
-    {
       this->tabela[i] = NULL;
-    }
   }
 
   /**
@@ -148,10 +150,8 @@ public:
   {
     this->tamanho++;
 
-    if (load_factor() >= 1)
-    {
+    if (load_factor() >= 1.0)
       aumentaArray();
-    }
 
     inserir(c, v, this->tabela);
   }
@@ -174,20 +174,19 @@ public:
 		**/
   Valor getValor(Chave chave)
   {
-    int indexBucket = obterIndexBucket(chave); // O(1)
-    Tupla<Chave, Valor> *bucket = this->tabela[indexBucket];
+    int indexBucket = obterIndexBucket(chave, this->qtde_buckets); // O(1)
 
-    Tupla<Chave, Valor> elem_no_bucket = *bucket;
+    Tupla<Chave, Valor> *tupla = this->tabela[indexBucket];
 
-    while (elem_no_bucket.getChave() != chave)
+    while (tupla->getChave() != chave)
     {
-      if (elem_no_bucket.getProx() == NULL)
+      if (tupla->getProx() == NULL)
         return NULL;
       else
-        elem_no_bucket = *(elem_no_bucket.getProx());
+        tupla = tupla->getProx();
     }
 
-    return elem_no_bucket.getValor();
+    return tupla->getValor();
   }
 
   /**
@@ -199,7 +198,7 @@ public:
 		**/
   bool contemChave(Chave chave)
   {
-    int indexBucket = obterIndexBucket(chave);
+    int indexBucket = obterIndexBucket(chave, this->qtde_buckets);
     if (this->tabela[indexBucket] == NULL)
       return false;
     Tupla<Chave, Valor> elem_no_bucket = *(this->tabela[indexBucket]);
@@ -223,21 +222,17 @@ public:
   {
     vector<Chave> chaves;
 
-    // for (Tupla<Chave, Valor> *bucket : this->tabela)
     for (int i = 0; i < this->qtde_buckets; i++)
     {
       if (this->tabela[i] == NULL)
         continue;
 
-      Tupla<Chave, Valor> tupla = *(this->tabela[i]);
+      Tupla<Chave, Valor> *tupla = this->tabela[i];
       do
       {
-        chaves.push_back(tupla.getChave());
-
-        if (tupla.getProx() != NULL)
-          tupla = *(tupla.getProx());
-
-      } while (tupla.getProx() != NULL);
+        chaves.push_back(tupla->getChave());
+        tupla = tupla->getProx();
+      } while (tupla != NULL);
     }
 
     return chaves;
@@ -254,23 +249,7 @@ public:
     for (Chave c : chaves)
       remover(c);
 
-    this->qtde_buckets = 8;
-    this->tamanho = 0;
-
-    Tupla<Chave, Valor> **nova_tabela = new Tupla<Chave, Valor> *[this->qtde_buckets];
-    delete this->tabela;
-    this->tabela = nova_tabela;
-
-    // Percorre cada Tupla de cada bucket sequencialmente
-    // for (int i = 0; i < this->qtde_buckets; i++)
-    // {
-    //   Tupla<Chave,Valor> *bucket = this->tabela[i];
-
-    //   while ()
-    //   {
-    //     /* code */
-    //   }
-    // }
+    reset_tabela();
   }
 
   /**
@@ -286,36 +265,45 @@ public:
 		**/
   void remover(Chave chave)
   {
-    int indexBucket = obterIndexBucket(chave);
-    Tupla<Chave, Valor> tupla = *(this->tabela[indexBucket]);
+    int index_bucket = obterIndexBucket(chave, this->qtde_buckets);
 
+    Tupla<Chave, Valor> *tupla = this->tabela[index_bucket];
+
+    if (tupla == NULL)
+      return;
     // Para remover, basta fazer o próximo do anterior ser igual ao próximo do atual
     Tupla<Chave, Valor> *proximo;
     Tupla<Chave, Valor> *excluido;
 
     // Checa se a chave já está no primeiro
-    if (tupla.getChave() == chave)
+    if (tupla->getChave() == chave)
     {
-      excluido = &tupla;
-      proximo = tupla.getProx();
+      excluido = tupla;
+      proximo = tupla->getProx();
 
-      this->tabela[indexBucket] = proximo;
+      this->tabela[index_bucket] = proximo;
       delete excluido;
+
+      this->tamanho--;
+      return;
     }
 
     // Checa se a chave está nos elementos seguintes
-    while (tupla.getProx() != NULL)
+    while (tupla->getProx() != NULL)
     {
-      if (tupla.getProx()->getChave() == chave)
+      if (tupla->getProx()->getChave() == chave)
       {
-        excluido = &tupla;
-        proximo = tupla.getProx()->getProx();
+        excluido = tupla;
+        proximo = tupla->getProx()->getProx();
 
-        tupla.setProx(proximo);
+        tupla->setProx(proximo);
         delete excluido;
+
+        this->tamanho--;
+        return;
       }
 
-      tupla = *(tupla.getProx());
+      tupla = tupla->getProx();
     }
   }
 

@@ -10,12 +10,8 @@ using namespace std;
 void criarTabela(TabelaHash<string, int> &tabela, int qtdadeRepeticoes, string itens[])
 {
     for (int i = 0; i < 5; i++)
-    {
         for (int j = 1; j <= qtdadeRepeticoes; j++)
-        {
             tabela.inserir(itens[i] + to_string(j), 500);
-        }
-    }
 }
 
 int main()
@@ -48,12 +44,9 @@ int main()
         int qtdadeRepeticoes = 2;
         criarTabela(estoqueSupermercadoTabelaHash, qtdadeRepeticoes, itens);
         for (int i = 0; i < 5; i++)
-        {
             for (int j = 1; j <= qtdadeRepeticoes; j++)
-            {
                 estoqueSupermercadoTabelaHash.contemChave(itens[i] + to_string(j));
-            }
-        }
+
         if (estoqueSupermercadoTabelaHash.size() == 10)
             cout << "estoqueSupermercadoTabelaHash.size() == 10\n";
         //tamanho inicial do array é 8, e cada vez que precisamos aumentar
@@ -69,12 +62,9 @@ int main()
         int qtdadeRepeticoes = 1000;
         criarTabela(estoqueSupermercadoTabelaHash, qtdadeRepeticoes, itens);
         for (int i = 0; i < 5; i++)
-        {
             for (int j = 1; j <= qtdadeRepeticoes; j++)
-            {
                 estoqueSupermercadoTabelaHash.contemChave(itens[i] + to_string(j));
-            }
-        }
+
         if (estoqueSupermercadoTabelaHash.size(), 5 * qtdadeRepeticoes)
             cout << "estoqueSupermercadoTabelaHash.size() == 5 * qtdadeRepeticoes\n";
         //tamanho inicial do array é 8, e cada vez que precisamos aumentar
